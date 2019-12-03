@@ -73,19 +73,19 @@ router.post('/', (req, res) => {
 router.post('/:id/comments', (req, res) => {
     const { id } = req.params;
     const comment = req.body;
-    if (!id) {
-        res.status(404).json({error: 'The post with the specified ID does not exist.'})
-    } else if (!comment.text) {
-        res.status(400).json({error: 'Please provide text for the comment.'})
-    } else {
-        db.insertComment(comment)
-            .then(comment => {
-                res.status(201).json(comment);
-            })
-            .catch(error => {
-                res.status(500).json({error: 'Error retrieving posts'})
-            })
-    }
+    db.findById(id)
+        .then(post => {
+            if (post.length) {
+                db.insertComment(comment)
+                    .then(comment => {
+                        res.status(200).json(comment);
+                    })
+            } else {
+                res.status(404).json({error: 'The post with the specified ID does not exist.'})
+            }})
+        .catch(error => {
+            res.status(500).json({error: 'The comments information could not be retrieved'})
+        })      
 })
 
 // DELETE /api/posts/:id  Removes the post with the specified id and returns the **deleted post object**. You may need to make additional 
